@@ -1,0 +1,102 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        -96
+      ],
+      "id": "fa578471-7566-4c47-a1de-3178af4b33ef",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "chatId": "6479743344",
+        "text": "={{ $json.h }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -80,
+        -96
+      ],
+      "id": "15233a58-b152-4c61-8134-347a39400361",
+      "name": "Send a text message",
+      "webhookId": "ef49fa1b-ab7e-4693-b9f7-494811d66157",
+      "credentials": {
+        "telegramApi": {
+          "id": "iIbVDNxZcLbtu5HC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a6f8f7ba-54d9-4abe-a11d-08eafe04f4b7",
+              "name": "h",
+              "value": "ooooooo",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -304,
+        -96
+      ],
+      "id": "f7588be8-81c1-49be-b421-2b185e37c52c",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "82276db1-3c7f-4bf3-bc42-59c0a49ee9a1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75b071e8355100a530c7a50a1a967a9388c1901fe009ff799817bb91a3da56ad"
+  },
+  "nodeGroups": [],
+  "id": "rvss5zM7XAceaBFq",
+  "tags": []
+}
