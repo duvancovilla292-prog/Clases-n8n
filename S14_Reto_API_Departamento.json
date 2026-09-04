@@ -1,0 +1,146 @@
+{
+  "name": "S14_Reto_API_Departamento",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "consulta-departamento",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1a9a89eb-16c1-40d4-8938-8845cb48101b",
+      "name": "Webhook GET",
+      "webhookId": "consulta-departamento"
+    },
+    {
+      "parameters": {
+        "url": "='https://api-colombia.com/api/v1/Department/name/' + $json.query.departamento",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "0da580bd-bd89-46aa-88b3-a3b2f6134761",
+      "name": "HTTP Request - API Colombia"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "field-nombre",
+              "name": "nombre",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "field-poblacion",
+              "name": "poblacion",
+              "value": "={{ $json.population }}",
+              "type": "number"
+            },
+            {
+              "id": "field-municipios",
+              "name": "municipios",
+              "value": "={{ $json.municipalities }}",
+              "type": "number"
+            },
+            {
+              "id": "field-superficie",
+              "name": "superficie",
+              "value": "={{ $json.surface }}",
+              "type": "number"
+            },
+            {
+              "id": "field-resumen",
+              "name": "resumen",
+              "value": "={{ $json.name + ' tiene ' + $json.population + ' habitantes, ' + $json.municipalities + ' municipios y una superficie de ' + $json.surface + ' km².' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        0
+      ],
+      "id": "1aac15f4-11b4-4d9e-8eab-7dc44669b100",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.resumen }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "66df76b9-3440-4f8a-9e3d-d6e3c24677e5",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook GET": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - API Colombia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - API Colombia": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "1bb428ad-7b54-4abf-83c8-ec828f2ff373",
+  "meta": {
+    "instanceId": "75b071e8355100a530c7a50a1a967a9388c1901fe009ff799817bb91a3da56ad"
+  },
+  "nodeGroups": [],
+  "id": "qe9dJ8mnyua9DWch",
+  "tags": []
+}
