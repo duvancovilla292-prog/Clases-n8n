@@ -1,0 +1,165 @@
+{
+  "name": "S15_Lab1_Agente_Gemini",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        128,
+        -80
+      ],
+      "id": "4baff1a2-a80d-4cf1-a50e-80d231330d48",
+      "name": "When chat message received",
+      "webhookId": "da03f006-46d9-48b2-be51-ed516a57c565"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Eres un asistente de aprendizaje para estudiantes principiantes.\nResponde en español, con explicaciones breves y claras.\nCuando una solicitud requiera una operación matemática, usa la herramienta Calculator.\nPara consultar el valor del dólar en Colombia, usa la herramienta consultar_trm.\nPara verificar la precipitación o clima en Bogotá, usa la herramienta consultar_lluvia_bogota.\nNo inventes datos. Si falta información necesaria, pregunta antes de responder.\nExplica el resultado final sin mostrar razonamientos internos privados."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        400,
+        -80
+      ],
+      "id": "16092efb-f25c-4ca8-acd3-f25103365a8a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        272,
+        96
+      ],
+      "id": "7bb98f8f-8a4e-43fb-aceb-b7d0efb0a7da",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "cBBhhhSi3Jep3AII",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        576,
+        112
+      ],
+      "id": "6e0e3b8e-94ac-4b4d-8e34-f10a12c39da3",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "sessionKey": "={{ $json.sessionId || 'session_default' }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        448,
+        112
+      ],
+      "id": "cf391b6c-149a-443a-a33f-8f76985216a5",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "url": "https://co.dolarapi.com/v1/trm",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        720,
+        64
+      ],
+      "id": "a49f410d-0e30-4e10-af4e-b7c43a07959a",
+      "name": "HTTP Request1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "2a663bfc-ba7f-4697-a5cd-1d5ffef0cb23",
+  "meta": {
+    "instanceId": "75b071e8355100a530c7a50a1a967a9388c1901fe009ff799817bb91a3da56ad"
+  },
+  "nodeGroups": [],
+  "id": "PdrhukiCE3IXqNRW",
+  "tags": []
+}

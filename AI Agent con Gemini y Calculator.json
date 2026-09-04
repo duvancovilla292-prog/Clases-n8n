@@ -1,0 +1,117 @@
+{
+  "name": "AI Agent con Gemini y Calculator",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -336,
+        160
+      ],
+      "id": "9194d4fe-0186-4b1e-a3f2-4327bdd8d528",
+      "name": "When chat message received",
+      "webhookId": "637e3df3-b73f-4bc0-925a-08a783d1e714"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Eres un asistente técnico útil y preciso. Responde de forma clara y directa."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -112,
+        160
+      ],
+      "id": "dc99c3ab-26a3-4515-9d22-c7c2aff4edfc",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {
+          "maxOutputTokens": 1000,
+          "temperature": 0.4
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        352
+      ],
+      "id": "ac8cd111-e0b2-429e-b414-a776196947be",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "cBBhhhSi3Jep3AII",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        32,
+        352
+      ],
+      "id": "c2d508d5-0544-4af8-8159-d76881edcf54",
+      "name": "Calculator"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "92de3d95-be59-4025-9670-36804a7801df",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75b071e8355100a530c7a50a1a967a9388c1901fe009ff799817bb91a3da56ad"
+  },
+  "nodeGroups": [],
+  "id": "kYGTTOQxxOXkqiGV",
+  "tags": []
+}
