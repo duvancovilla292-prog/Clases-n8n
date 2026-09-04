@@ -1,0 +1,284 @@
+{
+  "name": "S13 - Alerta Clima",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        128
+      ],
+      "id": "53c8ac5f-a2d5-4a1a-ab25-442c20cfeb06",
+      "name": "Manual Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast?latitude=4.6097&longitude=-74.0817&current=temperature_2m,precipitation,weather_code&timezone=America%2FBogota",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -688,
+        128
+      ],
+      "id": "1477b501-12ac-463a-95cf-33d517a36f4b",
+      "name": "HTTP Request - OpenMeteo"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "field-temp",
+              "name": "temperatura",
+              "value": "={{ $json.current.temperature_2m }}",
+              "type": "number"
+            },
+            {
+              "id": "field-precip",
+              "name": "precipitacion",
+              "value": "={{ $json.current.precipitation }}",
+              "type": "number"
+            },
+            {
+              "id": "field-code",
+              "name": "codigo_clima",
+              "value": "={{ $json.current.weather_code }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -464,
+        128
+      ],
+      "id": "ec1bfd41-52e9-4b55-923a-23ef6f3b34b8",
+      "name": "Resumen Clima"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-precipitacion",
+              "leftValue": "={{ $json.precipitacion }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -240,
+        128
+      ],
+      "id": "2db42167-290e-4620-9b38-1b5feb409bac",
+      "name": "If: precipitacion > 0"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "msg-lluvia",
+              "name": "mensaje",
+              "value": "=Alerta de lluvia en Bogotá. Precipitación actual: {{ $json.precipitacion }} mm. Temperatura: {{ $json.temperatura }} °C.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f194aa53-0ae2-461b-85aa-7a84a45a40f4",
+      "name": "Mensaje Lluvia"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "msg-seco",
+              "name": "mensaje",
+              "value": "=Clima actual en Bogotá sin precipitación registrada. Temperatura: {{ $json.temperatura }} °C.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        240
+      ],
+      "id": "2ae1b322-0a8c-41ec-9778-00ea34a7053d",
+      "name": "Mensaje Sin Lluvia"
+    },
+    {
+      "parameters": {
+        "chatId": "6479743344",
+        "text": "={{ $json.mensaje }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        128
+      ],
+      "id": "c96c9fb8-3382-4bbb-8488-806ad9771d92",
+      "name": "Telegram Info",
+      "webhookId": "473bad60-0f25-499b-bda5-3223b9ef3a3e",
+      "credentials": {
+        "telegramApi": {
+          "id": "iIbVDNxZcLbtu5HC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        240,
+        128
+      ],
+      "id": "9f46ea44-ec9e-4926-abda-f56d8963192e",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - OpenMeteo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - OpenMeteo": {
+      "main": [
+        [
+          {
+            "node": "Resumen Clima",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resumen Clima": {
+      "main": [
+        [
+          {
+            "node": "If: precipitacion > 0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: precipitacion > 0": {
+      "main": [
+        [
+          {
+            "node": "Mensaje Lluvia",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mensaje Sin Lluvia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje Lluvia": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje Sin Lluvia": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Telegram Info": {
+      "main": [
+        []
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Telegram Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "e4e1bf58-a45d-4a9f-bd35-2528934d31bb",
+  "meta": {
+    "instanceId": "75b071e8355100a530c7a50a1a967a9388c1901fe009ff799817bb91a3da56ad"
+  },
+  "nodeGroups": [],
+  "id": "HPma65XZc7f3KDcO",
+  "tags": []
+}

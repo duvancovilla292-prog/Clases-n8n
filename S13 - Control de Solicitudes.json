@@ -1,0 +1,266 @@
+{
+  "name": "S13 - Control de Solicitudes",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        112,
+        640
+      ],
+      "id": "362e8fd9-cf63-40b7-9857-bdaa49c7aa23",
+      "name": "Manual Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "field-solicitante",
+              "name": "solicitante",
+              "value": "Ciel Covilla",
+              "type": "string"
+            },
+            {
+              "id": "field-tipo",
+              "name": "tipo_solicitud",
+              "value": "Incidente",
+              "type": "string"
+            },
+            {
+              "id": "field-problema",
+              "name": "problema",
+              "value": "No puedo acceder al sistema de facturación",
+              "type": "string"
+            },
+            {
+              "id": "field-prioridad",
+              "name": "prioridad",
+              "value": 8,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        288,
+        640
+      ],
+      "id": "84001288-c42b-460e-a309-297ccc05a6ff",
+      "name": "Campos Solicitud"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-prioridad",
+              "leftValue": "={{ $json.prioridad }}",
+              "rightValue": 8,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        640
+      ],
+      "id": "d1f3800e-26fc-4d2f-be46-0467c0211d77",
+      "name": "If: prioridad"
+    },
+    {
+      "parameters": {
+        "chatId": "6479743344",
+        "text": "={{ $json.mensaje }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        976,
+        640
+      ],
+      "id": "15849fe4-baef-48d9-a3ed-d1d11645214f",
+      "name": "Telegram Normal",
+      "webhookId": "0b64ca1d-686f-4698-8bb0-374089bb7dfd",
+      "credentials": {
+        "telegramApi": {
+          "id": "iIbVDNxZcLbtu5HC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        832,
+        640
+      ],
+      "id": "f668c60b-6374-458a-85ce-82d55b0b342b",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "msg-prioritario",
+              "name": "mensaje",
+              "value": "=[SOPORTE PRIORITARIO]\nSolicitante: {{ $json.solicitante }}\nTipo: {{ $json.tipo_solicitud }}\nProblema: {{ $json.problema }}\nPrioridad: {{ $json.prioridad }}\nAcción: revisar de inmediato.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        544
+      ],
+      "id": "a1d2490c-9717-45f2-af35-bf303661f588",
+      "name": "Mensaje"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "msg-normal",
+              "name": "mensaje",
+              "value": "=[MESA DE AYUDA]\nNueva solicitud registrada.\nSolicitante: {{ $json.solicitante }}\nTipo: {{ $json.tipo_solicitud }}\nProblema: {{ $json.problema }}\nPrioridad: {{ $json.prioridad }}\nAcción: gestionar en la cola normal.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        752
+      ],
+      "id": "5f0c9272-f15b-4c78-878b-263670fc60d7",
+      "name": "Mensaje1",
+      "disabled": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Campos Solicitud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Campos Solicitud": {
+      "main": [
+        [
+          {
+            "node": "If: prioridad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: prioridad": {
+      "main": [
+        [
+          {
+            "node": "Mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mensaje1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Normal": {
+      "main": [
+        []
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Telegram Normal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f7fcdfe6-5c63-421d-9262-99545bbfac1a",
+  "meta": {
+    "instanceId": "75b071e8355100a530c7a50a1a967a9388c1901fe009ff799817bb91a3da56ad"
+  },
+  "nodeGroups": [],
+  "id": "HU7QTDt4bs5GoltJ",
+  "tags": []
+}
