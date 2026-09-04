@@ -1,0 +1,151 @@
+{
+  "name": "S14_Lab3_Receptor_Solicitudes",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "solicitud-soporte",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        -96
+      ],
+      "id": "7e880344-03b1-4505-9250-e78c9392e1bb",
+      "name": "Webhook",
+      "webhookId": "solicitud-soporte"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "field-nombre",
+              "name": "nombre",
+              "value": "={{ $json.body.nombre }}",
+              "type": "string"
+            },
+            {
+              "id": "field-correo",
+              "name": "correo",
+              "value": "={{ $json.body.correo }}",
+              "type": "string"
+            },
+            {
+              "id": "field-asunto",
+              "name": "asunto",
+              "value": "={{ $json.body.asunto }}",
+              "type": "string"
+            },
+            {
+              "id": "field-prioridad",
+              "name": "prioridad",
+              "value": "={{ $json.body.prioridad }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        192,
+        -96
+      ],
+      "id": "6357457e-178c-4b97-adbb-91be8956e19d",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "chatId": "6479743344",
+        "text": "=Nueva solicitud recibida\nNombre: {{ $json.nombre }}\nCorreo: {{ $json.correo }}\nAsunto: {{ $json.asunto }}\nPrioridad: {{ $json.prioridad }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        -96
+      ],
+      "id": "9044dbdb-d36d-4212-ae09-c714ef25c880",
+      "name": "Send a text message",
+      "webhookId": "68544ebd-3ef3-4ee1-8b69-18bc35715905",
+      "credentials": {
+        "telegramApi": {
+          "id": "iIbVDNxZcLbtu5HC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ 'Solicitud recibida correctamente para ' + $json.nombre }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        -96
+      ],
+      "id": "ca826c16-b94e-4ab6-8409-4f50ca9d7707",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a62a7e41-c95c-4ad6-ac4b-2dffc4ee231a",
+  "meta": {
+    "instanceId": "75b071e8355100a530c7a50a1a967a9388c1901fe009ff799817bb91a3da56ad"
+  },
+  "nodeGroups": [],
+  "id": "iB7tGTRgj8F3I9xa",
+  "tags": []
+}
