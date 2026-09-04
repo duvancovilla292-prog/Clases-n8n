@@ -1,0 +1,289 @@
+{
+  "name": "S13 - Control de Solicitudes (Form + Telegram + Gmail)",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Formulario de Solicitud de Soporte",
+        "formDescription": "Diligencie los datos correspondientes para registrar su solicitud.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "solicitante",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "tipo_solicitud",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Incidente"
+                  },
+                  {
+                    "option": "Requerimiento"
+                  },
+                  {
+                    "option": "Consulta"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "problema",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "prioridad",
+              "fieldType": "number",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "respondWithOptions": {
+            "values": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -496,
+        128
+      ],
+      "id": "82c1325d-7057-42db-8892-452bf0b73148",
+      "name": "n8n Form Trigger",
+      "webhookId": "c6fd4cb6-78ed-455a-ba06-8df0275a4b1d"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-prioridad-form",
+              "leftValue": "={{ $json.prioridad }}",
+              "rightValue": 8,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -240,
+        128
+      ],
+      "id": "4adcc327-fbab-4e6b-8b3d-20ddd2a77d92",
+      "name": "If: prioridad"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "msg-prioritario",
+              "name": "mensaje",
+              "value": "=[SOPORTE PRIORITARIO]\nSolicitante: {{ $json.solicitante }}\nTipo: {{ $json.tipo_solicitud }}\nProblema: {{ $json.problema }}\nPrioridad: {{ $json.prioridad }}\nAcción: revisar de inmediato.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -16,
+        48
+      ],
+      "id": "b2785c0a-e8ec-4bfb-b7cd-463633dc1eef",
+      "name": "Mensaje Prioritario"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "msg-normal",
+              "name": "mensaje",
+              "value": "=[MESA DE AYUDA]\nNueva solicitud registrada.\nSolicitante: {{ $json.solicitante }}\nTipo: {{ $json.tipo_solicitud }}\nProblema: {{ $json.problema }}\nPrioridad: {{ $json.prioridad }}\nAcción: gestionar en la cola normal.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        208
+      ],
+      "id": "2dbed547-2533-4db3-8522-95becf11d7a9",
+      "name": "Mensaje Mesa Ayuda"
+    },
+    {
+      "parameters": {
+        "chatId": "6479743344",
+        "text": "={{ $json.mensaje }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        336,
+        112
+      ],
+      "id": "7ac868e0-787b-489c-807c-cf8ef8bad3a1",
+      "name": "Telegram Prioritario",
+      "webhookId": "529f55da-cb0c-4796-8bce-138c9e4fcb1a",
+      "credentials": {
+        "telegramApi": {
+          "id": "iIbVDNxZcLbtu5HC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "cieltempest292@gmail.com",
+        "subject": "=🚨 Nueva solicitud de {{ $('n8n Form Trigger').item.json.solicitante }}",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; background-color: #ffffff;\">\n  \n  <div style=\"background-color: #1e293b; color: #ffffff; padding: 20px; text-align: center;\">\n    <h2 style=\"margin: 0; font-size: 20px;\">🚨 Mesa de Ayuda - Nueva Solicitud</h2>\n  </div>\n\n  <div style=\"padding: 24px; color: #334155;\">\n    <p style=\"font-size: 15px; margin-top: 0;\">Se ha registrado un nuevo ticket en el sistema con los siguientes detalles:</p>\n    \n    <table style=\"width: 100%; border-collapse: collapse; margin-top: 15px;\">\n      <tr style=\"border-bottom: 1px solid #f1f5f9;\">\n        <td style=\"padding: 10px 0; font-weight: bold; width: 35%;\">Solicitante:</td>\n        <td style=\"padding: 10px 0;\">{{ $('n8n Form Trigger').item.json.solicitante }}</td>\n      </tr>\n      <tr style=\"border-bottom: 1px solid #f1f5f9;\">\n        <td style=\"padding: 10px 0; font-weight: bold;\">Tipo de Solicitud:</td>\n        <td style=\"padding: 10px 0;\">{{ $('n8n Form Trigger').item.json.tipo_solicitud }}</td>\n      </tr>\n      <tr style=\"border-bottom: 1px solid #f1f5f9;\">\n        <td style=\"padding: 10px 0; font-weight: bold;\">Prioridad:</td>\n        <td style=\"padding: 10px 0;\">\n          <span style=\"background-color: #ef4444; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;\">\n            {{ $('n8n Form Trigger').item.json.prioridad }}\n          </span>\n        </td>\n      </tr>\n      <tr style=\"border-bottom: 1px solid #f1f5f9;\">\n        <td style=\"padding: 10px 0; font-weight: bold;\">Fecha:</td>\n        <td style=\"padding: 10px 0;\">{{ $('n8n Form Trigger').item.json.submittedAt }}</td>\n      </tr>\n    </table>\n\n    <div style=\"margin-top: 20px; background-color: #f8fafc; border-left: 4px solid #0284c7; padding: 12px 16px; border-radius: 0 4px 4px 0;\">\n      <p style=\"margin: 0 0 6px 0; font-weight: bold; color: #0f172a;\">Descripción del problema:</p>\n      <p style=\"margin: 0; color: #475569; font-style: italic;\">\"{{ $('n8n Form Trigger').item.json.problema }}\"</p>\n    </div>\n  </div>\n\n  <div style=\"background-color: #f1f5f9; padding: 12px; text-align: center; font-size: 12px; color: #64748b;\">\n    Notificación automática de n8n • Entorno: {{ $('n8n Form Trigger').item.json.formMode }}\n  </div>\n\n</div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        496,
+        112
+      ],
+      "id": "4f7aab9e-4034-4874-90f6-4a72ef6f4305",
+      "name": "Gmail Prioritario",
+      "webhookId": "7e9a58d0-a0da-4f65-a18c-ad7af034de28",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lf9KUKJWI1x38UmT",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        176,
+        112
+      ],
+      "id": "3a7e1180-90a1-4406-9667-d11eeaa8353a",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "n8n Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "If: prioridad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: prioridad": {
+      "main": [
+        [
+          {
+            "node": "Mensaje Prioritario",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mensaje Mesa Ayuda",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje Prioritario": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Prioritario": {
+      "main": [
+        [
+          {
+            "node": "Gmail Prioritario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje Mesa Ayuda": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Telegram Prioritario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "29884ac3-d9f6-4914-958b-966fb9acca30",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75b071e8355100a530c7a50a1a967a9388c1901fe009ff799817bb91a3da56ad"
+  },
+  "nodeGroups": [],
+  "id": "whHSRf1lHIPlwll7",
+  "tags": []
+}
